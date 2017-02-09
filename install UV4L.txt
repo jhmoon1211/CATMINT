@@ -1,0 +1,52 @@
+#install UV4L
+$ curl http://www.linux-projects.org/listing/uv4l_repo/lrkey.asc | sudo apt-key add -
+
+#add the following line to the file /etc/apt/sources.list
+#case 1: Raspbian Wheezy
+deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/ wheezy main
+#case 2: Raspbian Jessie
+deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/ jessie main
+
+#upgrade UV4L to the most recent version
+$ sudo apt-get update
+$ sudo apt-get install uv4l uv4l-raspicam
+
+#install optional package(if want the driver to be loaded at boot)
+$ sudo apt-get install uv4l-raspicam-extras
+
+#(re)start the service
+$ sudo service uv4l_raspicam restart
+
+#When (re)starting the service, uv4l will be instructed to parse the configuration file /etc/uv4l/uv4l-raspicam.conf to get the default values of the driver options. You can edit that file to add, remove or change the default option values. The same service is used at boot.
+#Now the UV4L core component and the Video4Linux2 driver for the CSI Camera Board are installed.
+
+#update the firmware
+$ sudo rpi-update
+
+#if you have not installed the optional uv4l-raspicam-extras package
+#and want to quickly test uv4l
+$ uv4l --driver raspicam --auto-video_nr --width 640 --height 480 --encoding jpeg
+
+#take a JPEG snapshot
+$ dd if=/dev/video0 of=snapshot.jpeg bs=11M count=1
+
+#close all the applications accessing the device and kill the corresponding uv4l process
+$ pkill uv4l
+
+#install streaming server front-end and drivers
+$ sudo apt-get install uv4l-server uv4l-uvc uv4l-xscreen uv4l-mjpegstream uv4l-dummy uv4l-raspidisp
+
+$ sudo apt-get install uv4l-webrtc
+
+#Note that some browsers may no longer exploit many of the WebRTC functionalities over HTTP for security reasons. If you want or need to enable secure HTTPS in the Streaming Server instead, you must provide a password-less private key and a valid certificate via the ?ssl-private-key-file and the ?ssl-certificate-file server options. A private key and a self-signed certificate can be generated as follows:
+$ openssl genrsa -out selfsign.key 2048 && openssl req -new -x509 -key selfsign.key -out selfsign.crt -sha256
+
+#Thanks to the WebRTC extension mentioned above, it’s also possible to broadcast both live audio and video contents from the Raspberry Pi 2 to all the participants or viewers joining a room of a Jitsi Meet conference on the Web. Furthermore, no browser and no GUI will have to be used on the Raspberry Pi.
+#For this, install the additional xmpp-bridge service
+$ sudo apt-get install uv4l-xmpp-bridge
+
+#Finish :)
+
+#link
+http://www.linux-projects.org/uv4l/installation/
+http://www.linux-projects.org/uv4l/tutorials/streaming-server/
