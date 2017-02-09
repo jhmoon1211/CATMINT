@@ -31,7 +31,7 @@ $ uv4l --driver raspicam --auto-video_nr --width 640 --height 480 --encoding jpe
 $ dd if=/dev/video0 of=snapshot.jpeg bs=11M count=1
 
 #close all the applications accessing the device and kill the corresponding uv4l process
-$ pkill uv4l
+$ sudo pkill uv4l
 
 #install streaming server front-end and drivers
 $ sudo apt-get install uv4l-server uv4l-uvc uv4l-xscreen uv4l-mjpegstream uv4l-dummy uv4l-raspidisp
