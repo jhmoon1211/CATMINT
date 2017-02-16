@@ -1,13 +1,16 @@
 import socket
 import MySQLdb
-from subprocess import call
 import time
+import RPi.GPIO as GPIO
+from subprocess import call
+
 #-*- coding: utf-8 -*-
 
 max_pos = 200
 min_pos = 55
 pan_pos1 = 55
 pan_pos2 = 55
+laser_power = False
 
 HOST = ""
 PORT = 8888
@@ -87,7 +90,29 @@ def same_time_motor_move(data):
 
     call("echo "+str1+" | echo "+str2, shell= True)
 
+
         
+def set_laser_power():
+    GPIO.setmode(GPIO.BCM)
+
+    print('Setup LED pins as outputs')
+    
+    GPIO.setup(16, GPIO.OUT)
+    GPIO.output(16, False)
+    GPIO.setup(20, GPIO.OUT)
+    GPIO.output(20, False)
+    if laser_power == False:
+        laser_power = True
+        GPIO.output(16, True)
+        GPIO.output(20, True)
+
+    elif laser_power == True:
+        laser_power = False
+        GPIO.output(16, False)
+        GPIO.output(20, False)
+        GPIO.cleanup()
+
+
 
 def do_some_stuffs_with_input(input_string):
     global pan_pos1
@@ -137,9 +162,13 @@ def do_some_stuffs_with_input(input_string):
         input_string="auto"
         print('auto')
 
-    elif input_string =="play":
+    elif input_string == "play":
         input_string="play"
         print('play')
+
+    elif input_string == "laser_power":
+        input_string = "laser_power"
+        set_laser_power()
         
     else :
         input_string = input_string+"dont have"
