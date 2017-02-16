@@ -1,6 +1,7 @@
 import socket
 import MySQLdb
 import time
+import random
 import RPi.GPIO as GPIO
 from subprocess import call
 
@@ -10,6 +11,7 @@ max_pos = 200
 min_pos = 55
 pan_pos1 = 55
 pan_pos2 = 55
+sound_power = 1
 laser_power = False
 
 HOST = ""
@@ -21,13 +23,91 @@ print('Socket bind complete')
 s.listen(1)
 print('Socket now listening')
 
+
+def match_direction(input_string):
+    global pan_pos1
+    global pan_pos2
+    call_str = ""
+    
+    if input_string =="r":
+        pan_pos1 += 10
+        if pan_pos1 >= max_pos:
+            pan_pos1 = max_pos
+            
+        input_string = "servo left"
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster"
+
+    
+    elif input_string == "l":
+        pan_pos1 -= 10
+        if pan_pos1 <= min_pos:
+            pan_pos1 = min_pos
+
+        input_string = "servo right"
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster"
+
+    elif input_string == "u":
+        pan_pos2 += 10
+        if pan_pos2 >= max_pos:
+            pan_pos2 = max_pos
+
+        input_string = "servo up"
+        call_str = "echo 6="+str(pan_pos2)+"> /dev/servoblaster"
+
+    elif input_string == "d":
+        pan_pos2 -= 10
+        if pan_pos2 <= min_pos:
+            pan_pos2 = min_pos
+
+        input_string = "servo down"
+        call_str = "echo 6="+str(pan_pos2)+"> /dev/servoblaster"
+
+    elif input_string == "clear":
+        pan_pos1 = 55
+        pan_pos2 = 55
+
+        input_string = "servo clear"
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"
+
+    elif input_string == "auto":
+        get_pattern()
+        input_string="auto"                                                                       
+        print('auto')
+
+    elif input_string =="play":
+        input_string="play"
+        print('play')
+
+    elif input_string =="sound":
+        input_string="sound"
+        print('sound')
+        play_sound()
+
+    elif input_string =="off":
+        input_string="off"
+        s.close()
+
+    elif input_string == "laser_power":
+        input_string = "laser_power"
+        set_laser_power()
+        
+    else :
+        input_string = input_string+"dont have"
+        
+    return call_str
+
+
+
 def get_pattern():
-    db = MySQLdb.connect(host="192.168.0.88", user="root", passwd="catmint", db="catmint")
+    multi_strs = ["", ""]
+    
+    db = MySQLdb.connect(host="192.168.0.89", user="root", passwd="catmint", db="catmint")
     db.set_character_set('utf8mb4')
 
     cursor = db.cursor()
 
-    sql = "SELECT pattern1 from basicpattern"
+    sql = "SELECT pattern"+str(random.randint(1,4))+" from basicpattern"
+    print(sql)
 
     try:
         cursor.execute(sql)
@@ -40,11 +120,14 @@ def get_pattern():
         for i in range(0, len(datas)):
             if datas[i].find(",") != -1:
                 data=datas[i].split(",")
-                same_time_motor_move(data)
-                time.sleep(1)
+                
+                for i in range(0, len(data)):
+                    multi_strs[i] = match_direction(data[i])
+                call(multi_strs[0]+" | "+multi_strs[1], shell= True)
+                time.sleep(0.3)
+                
             else:
-                do_some_stuffs_with_input(datas[i])
-                time.sleep(1)
+                match_direction(datas[i])
         
         
     except Exception as e:
@@ -53,45 +136,6 @@ def get_pattern():
 
         db.close()
 
-
-def same_time_motor_move(data):
-    global pan_pos1
-    global pan_pos2
-    
-    for i in range(0, len(data)):
-        print(data[i])
-        
-        if data[i]=="right":
-            pan_pos1 += 10
-            if pan_pos1 >= max_pos:
-                pan_pos1 = max_pos
-            str1="5="+str(pan_pos1)+"> /dev/servoblaster"
-            
-        elif data[i]=="left":
-            data[i]="5"
-            pan_pos1 -= 10
-            if pan_pos1 <= min_pos:
-                pan_pos1 = min_pos
-            str1="5="+str(pan_pos1)+"> /dev/servoblaster"
-            
-        elif data[i]=="up":
-            data[i]="6"
-            pan_pos2 += 10
-            if pan_pos2 >= max_pos:
-                pan_pos2 = max_pos
-            str2="6="+str(pan_pos2)+"> /dev/servoblaster"
-            
-        elif data[i]=="down":
-            data[i]="6"
-            pan_pos2 -= 10
-            if pan_pos2 <= min_pos:
-                pan_pos2 = min_pos
-            str2="6="+str(pan_pos2)+"> /dev/servoblaster"
-
-    call("echo "+str1+" | echo "+str2, shell= True)
-
-
-        
 def set_laser_power():
     GPIO.setmode(GPIO.BCM)
 
@@ -114,66 +158,22 @@ def set_laser_power():
 
 
 
-def do_some_stuffs_with_input(input_string):
-    global pan_pos1
-    global pan_pos2
-    
-    if input_string =="right":
-        pan_pos1 += 10
-        if pan_pos1 >= max_pos:
-            pan_pos1 = max_pos
-            
-        input_string = "servo left"
-        call("echo 5="+str(pan_pos1)+" > /dev/servoblaster", shell= True)
-    
-    elif input_string == "left":
-        pan_pos1 -= 10
-        if pan_pos1 <= min_pos:
-            pan_pos1 = min_pos
-
-        input_string = "servo right"
-        call("echo 5="+str(pan_pos1)+"> /dev/servoblaster", shell= True)
-
-    elif input_string == "up":
-        pan_pos2 += 10
-        if pan_pos2 >= max_pos:
-            pan_pos2 = max_pos
-
-        input_string = "servo up"
-        call("echo 6="+str(pan_pos2)+"> /dev/servoblaster", shell= True)
-
-    elif input_string == "down":
-        pan_pos2 -= 10
-        if pan_pos2 <= min_pos:
-            pan_pos2 = min_pos
-
-        input_string = "servo down"
-        call("echo 6="+str(pan_pos2)+"> /dev/servoblaster", shell= True)
-
-    elif input_string == "clear":
-        pan_pos1 = 55
-        pan_pos2 = 55
-
-        input_string = "servo clear"
-        call("echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster", shell= True)
-
-    elif input_string == "auto":
-        get_pattern()
-        input_string="auto"
-        print('auto')
-
-    elif input_string == "play":
-        input_string="play"
-        print('play')
-
-    elif input_string == "laser_power":
-        input_string = "laser_power"
-        set_laser_power()
+def play_sound():
+    global sound_power
+    #if sound_power==0:
+        #call("bluetoothctl", shell=True)
+        #call("pair 88:C6:26:49:9D:73", shell=True)
+        #call("trust 88:C6:26:49:9D:73", shell=True)
+        #call("connect 88:C6:26:49:9D:73", shell=True)
+        #time.sleep(3)
+        #call("exit", shell=True)
+        #call("pacmd set-default-sink 1", shell=True)
+        #call("pacmd set-default-sink bluez_sink.88_C6_26_49_9D_73", shell=True)
+        #sound_power=1
         
-    else :
-        input_string = input_string+"dont have"
-    return input_string
+    call("aplay /usr/share/sounds/alsa/Side_Right.wav", shell=True)
 
+        
 while True :
     conn, addr = s.accept()
     print("Connected by ", addr)
@@ -183,10 +183,14 @@ while True :
     if not data : break
     print("Received: "+data)
 
-    res = do_some_stuffs_with_input(data)
-    print("move:"+res)
+    live_str = match_direction(data)
+    
+    if live_str == "":
+    else:
+        call(live_str, shell= True)
+        time.sleep(0.3)
 
-    conn.sendall(res.encode("utf-8"))
+    conn.sendall(live_str.encode("utf-8"))
 
     conn.close()
     
