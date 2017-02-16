@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
             public void run() {
                 int width = webView.getWidth();
                 int height = webView.getHeight();
-                webView.loadUrl("http://192.168.0.89:8080" + "?width="+width+"&height="+height);
+                webView.loadUrl("http://192.168.0.89:8080/stream" + "?width="+width+"&height="+height);
             }
         });
 
