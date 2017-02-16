@@ -137,6 +137,8 @@ def get_pattern():
         db.close()
 
 def set_laser_power():
+    global laser_power
+    
     GPIO.setmode(GPIO.BCM)
 
     print('Setup LED pins as outputs')
@@ -184,12 +186,9 @@ while True :
     print("Received: "+data)
 
     live_str = match_direction(data)
-    
-    if live_str == "":
-    else:
+    if live_str != "":
         call(live_str, shell= True)
         time.sleep(0.3)
-
     conn.sendall(live_str.encode("utf-8"))
 
     conn.close()
