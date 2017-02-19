@@ -48,7 +48,7 @@
         <ImageButton
             android:layout_width="70dp"
             android:layout_height="70dp"
-            app:srcCompat="@drawable/left_key"
+            android:src="@drawable/left_key"
             android:text="l"
             android:scaleType="fitCenter"
             android:id="@+id/button_left"
@@ -58,7 +58,7 @@
         <ImageButton
             android:layout_width="70dp"
             android:layout_height="70dp"
-            app:srcCompat="@drawable/right_key"
+            android:src="@drawable/right_key"
             android:scaleType="fitCenter"
             android:id="@+id/button_right"
             android:background="@android:color/background_light"
@@ -70,7 +70,7 @@
     <ImageButton
         android:layout_width="70dp"
         android:layout_height="70dp"
-        app:srcCompat="@drawable/down_key"
+        android:src="@drawable/down_key"
         android:scaleType="fitCenter"
         android:id="@+id/button_down"
         android:background="@android:color/background_light"
@@ -93,7 +93,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:text="sound"
-            app:srcCompat="@drawable/sound"
+            android:src="@drawable/sound"
             android:background="@android:color/background_light"
             android:scaleType="fitCenter"
             android:id="@+id/button_sound"
@@ -104,6 +104,13 @@
             android:layout_height="wrap_content"
             app:srcCompat="@mipmap/ic_launcher"
             android:id="@+id/imageButton_set"
+            android:layout_weight="1" />
+
+        <Button
+            android:text="laser_power"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_laser_power"
             android:layout_weight="1" />
 
     </LinearLayout>

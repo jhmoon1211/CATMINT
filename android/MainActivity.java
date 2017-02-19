@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -12,6 +13,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,23 +30,31 @@ public class MainActivity extends Activity {
     boolean login_status = false;   //로그인상태 확인
 //    Intent login = new Intent(MainActivity.this, LoginActivity.class);   //로그인 화면
     Intent setting;   //설정 화면
-    String l_direction = "l", r_direction="r", d_direction = "d", u_direction = "u", sound = "sound";
-    String IP="192.168.0.89";
+    String l_direction = "left", r_direction="right", d_direction = "down", u_direction = "up", sound = "sound";
+    String IP="192.168.0.214";
     Integer PORT = 8888;
     TextView recieveText;
     EditText editTextAddress, editTextPort, messageText;
     ImageButton upBtn, downBtn, leftBtn, rightBtn, soundBtn, settingBtn;
-    Button clearBtn, offBtn;
+    Button clearBtn, offBtn, laserBtn;
     WebView webView;
 
-    ServerTask motorTask, soundTask, offTask;
+    ServerTask motorTask, soundTask, laserTask;
 
     Socket socket = null;
 
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(checkPlayServices())
+        {
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
 /*
         startActivity(new Intent(this, LoadingActivity.class));
 
@@ -59,12 +71,13 @@ public class MainActivity extends Activity {
         downBtn = (ImageButton) findViewById(R.id.button_down);
         leftBtn = (ImageButton) findViewById(R.id.button_left);
         rightBtn = (ImageButton) findViewById(R.id.button_right);
-        clearBtn = (Button) findViewById(R.id.button_clear);
-        soundBtn = (ImageButton) findViewById(R.id.button_sound);
-        offBtn = (Button) findViewById(R.id.button_off);
         settingBtn = (ImageButton) findViewById(R.id.imageButton_set);
-        editTextAddress = (EditText) findViewById(R.id.host_ip);
-        editTextPort = (EditText) findViewById(R.id.port);
+        soundBtn = (ImageButton) findViewById(R.id.button_sound);
+        clearBtn = (Button) findViewById(R.id.button_clear);
+        laserBtn = (Button) findViewById(R.id.button_laser_power);
+
+        //editTextAddress = (EditText) findViewById(R.id.host_ip);
+        //editTextPort = (EditText) findViewById(R.id.port);
         recieveText = (TextView) findViewById(R.id.textView_rcv);
         webView = (WebView) findViewById(R.id.web_stream);
 
@@ -76,7 +89,7 @@ public class MainActivity extends Activity {
             public void run() {
                 int width = webView.getWidth();
                 int height = webView.getHeight();
-                webView.loadUrl("http://192.168.0.89:8080/stream" + "?width="+width+"&height="+height);
+                webView.loadUrl("http://192.168.0.89:8080" + "?width="+width+"&height="+height);
             }
         });
 
@@ -139,12 +152,26 @@ public class MainActivity extends Activity {
             }
         });
 
-        offBtn.setOnClickListener(new View.OnClickListener(){
+        laserBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                offTask = new ServerTask(IP, PORT, offBtn.getText().toString());
-                offTask.execute();
+                laserTask = new ServerTask(IP, PORT, "laser_power".toString());
+                laserTask.execute();
             }
         });
+    }
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if(resultCode != ConnectionResult.SUCCESS) {
+            if(apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG,"This device is not supported");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 }
