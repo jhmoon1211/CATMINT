@@ -101,7 +101,7 @@ def match_direction(input_string):
 def get_pattern():
     multi_strs = ["", ""]
     
-    db = MySQLdb.connect(host="192.168.0.89", user="root", passwd="catmint", db="catmint")
+    db = MySQLdb.connect(host="127.0.0.1", port=3306, user="root", passwd="catmint", db="catmint")
     db.set_character_set('utf8mb4')
 
     cursor = db.cursor()
