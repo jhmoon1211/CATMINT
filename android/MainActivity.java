@@ -30,8 +30,7 @@ public class MainActivity extends Activity {
     boolean login_status = false;   //로그인상태 확인
 //    Intent login = new Intent(MainActivity.this, LoginActivity.class);   //로그인 화면
     Intent setting;   //설정 화면
-    String l_direction = "left", r_direction="right", d_direction = "down", u_direction = "up", sound = "sound";
-    String IP="192.168.0.214";
+    String l_direction = "l", r_direction="r", d_direction = "d", u_direction = "u", sound = "sound";    String IP="192.168.0.214";
     Integer PORT = 8888;
     TextView recieveText;
     EditText editTextAddress, editTextPort, messageText;
