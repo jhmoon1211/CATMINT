@@ -34,7 +34,6 @@ def match_direction(input_string):
         if pan_pos1 >= max_pos:
             pan_pos1 = max_pos
             
-        input_string = "servo left"
         call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster"
 
     
@@ -43,7 +42,6 @@ def match_direction(input_string):
         if pan_pos1 <= min_pos:
             pan_pos1 = min_pos
 
-        input_string = "servo right"
         call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster"
 
     elif input_string == "u":
@@ -51,7 +49,6 @@ def match_direction(input_string):
         if pan_pos2 >= max_pos:
             pan_pos2 = max_pos
 
-        input_string = "servo up"
         call_str = "echo 6="+str(pan_pos2)+"> /dev/servoblaster"
 
     elif input_string == "d":
@@ -59,24 +56,28 @@ def match_direction(input_string):
         if pan_pos2 <= min_pos:
             pan_pos2 = min_pos
 
-        input_string = "servo down"
         call_str = "echo 6="+str(pan_pos2)+"> /dev/servoblaster"
 
     elif input_string == "clear":
         pan_pos1 = 55
         pan_pos2 = 55
 
-        input_string = "servo clear"
         call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"
 
-    elif input_string == "auto":
-        get_pattern()
-        input_string="auto"                                                                       
-        print('auto')
-
-    elif input_string =="play":
-        input_string="play"
-        print('play')
+    elif input_string == "line":
+        pattern = "pattern1"
+        get_pattern(1, pattern)
+        print('auto: Straight line')
+        
+    elif input_string == "zigzag":
+        pattern = "pattern2"
+        get_pattern(1, pattern)
+        print('auto: Zigzag')
+        
+    elif input_string == "circle":
+        pattern = "pattern4"
+        get_pattern(1, pattern)
+        print('auto: Circle')
 
     elif input_string =="sound":
         input_string="sound"
@@ -98,7 +99,7 @@ def match_direction(input_string):
 
 
 
-def get_pattern():
+def get_pattern(index, pattern):
     multi_strs = ["", ""]
     
     db = MySQLdb.connect(host="127.0.0.1", port=3306, user="root", passwd="catmint", db="catmint")
@@ -106,7 +107,9 @@ def get_pattern():
 
     cursor = db.cursor()
 
-    sql = "SELECT pattern"+str(random.randint(1,4))+" from basicpattern"
+    #sql = "SELECT pattern"+str(random.randint(1,4))+" from basicpattern"
+    sql = "SELECT " + pattern + "FROM basicpattern WHERE num = " + str(index)
+    
     print(sql)
 
     try:
@@ -114,21 +117,23 @@ def get_pattern():
         db.commit()
         rows = cursor.fetchone()
         datas = rows[0].split(" ")
-        for i in range(0, len(datas)):
-            print(datas[i])
 
         for i in range(0, len(datas)):
+            print(datas[i])     # for test
+            
             if datas[i].find(",") != -1:
                 data=datas[i].split(",")
                 
-                for i in range(0, len(data)):
-                    multi_strs[i] = match_direction(data[i])
+                for j in range(0, len(data)):
+                    multi_strs[j] = match_direction(data[j])
                 call(multi_strs[0]+" | "+multi_strs[1], shell= True)
                 time.sleep(0.3)
                 
             else:
-                match_direction(datas[i])
-        
+                result = match_direction(datas[i])
+                call(result, shell= True)
+                
+        db.close()
         
     except Exception as e:
         print(str(e))
@@ -189,7 +194,7 @@ while True :
     if live_str != "":
         call(live_str, shell= True)
         time.sleep(0.3)
-    conn.sendall(live_str.encode("utf-8"))
+    conn.sendall(live_str.encode("utf-8"))      # send to android
 
     conn.close()
     
