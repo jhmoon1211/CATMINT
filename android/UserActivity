@@ -1,0 +1,106 @@
+package kr.ac.kpu.catmint;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
+
+
+public class UserActivity extends AppCompatActivity {
+    String l_direction = "l", r_direction="r", d_direction = "d", u_direction = "u", sound = "sound", clear="clear";
+    static String IP="192.168.10.102";
+    static Integer PORT = 8888;
+    ImageButton upBtn, downBtn, leftBtn, rightBtn,clearBtn, soundBtn, laserBtn;
+    WebView webView;
+    ServerTask motorTask, soundTask, laserTask;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user);
+
+        upBtn = (ImageButton) findViewById(R.id.button_up);
+        downBtn = (ImageButton) findViewById(R.id.button_down);
+        leftBtn = (ImageButton) findViewById(R.id.button_left);
+        rightBtn = (ImageButton) findViewById(R.id.button_right);
+        clearBtn = (ImageButton)findViewById(R.id.clear);
+        laserBtn = (ImageButton)findViewById(R.id.laser);
+        soundBtn = (ImageButton)findViewById(R.id.sound);
+
+        //recieveText = (TextView) findViewById(R.id.textView_rcv);
+        webView = (WebView)findViewById(R.id.webView);
+
+        int default_zoom_level = 100;
+        webView.setInitialScale(default_zoom_level);
+
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                int width = webView.getWidth();
+                int height = webView.getHeight();
+                webView.loadUrl("http://" + IP + ":8080/stream" + "?width=" + width + "&height=" + height);
+            }
+        });
+
+        leftBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                motorTask = new ServerTask(IP, PORT, l_direction);
+                motorTask.execute();
+            }
+        });
+
+        rightBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                motorTask = new ServerTask(IP, PORT, r_direction);
+                motorTask.execute();
+            }
+        });
+
+        upBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                motorTask = new ServerTask(IP, PORT, u_direction);
+                motorTask.execute();
+            }
+        });
+
+        downBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                motorTask = new ServerTask(IP, PORT, d_direction);
+                motorTask.execute();
+            }
+        });
+
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                motorTask = new ServerTask(IP, PORT, clear);
+                motorTask.execute();
+            }
+        });
+
+        soundBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                soundTask = new ServerTask(IP, PORT, sound);
+                soundTask.execute();
+                Toast.makeText(getApplicationContext(), "wait..", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        laserBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                laserTask = new ServerTask(IP, PORT, "laser_power".toString());
+                laserTask.execute();
+            }
+        });
+
+    }
+}
