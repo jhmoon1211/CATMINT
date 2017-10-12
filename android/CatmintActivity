@@ -1,0 +1,92 @@
+package kr.ac.kpu.catmint;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.Toast;
+
+import static kr.ac.kpu.catmint.UserActivity.IP;
+
+public class CatmintActivity extends AppCompatActivity {
+    WebView webView;
+    Button line,rectangle,zigzag, eight, maze;
+    String host;
+    Integer port;
+    Intent intent;
+    ServerTask set_modeTask;
+
+    final String PATTERN_1 = "line";
+    final String PATTERN_2 = "zigzag";
+    final String PATTERN_3 = "rectangle";
+    final String PATTERN_4 = "maze";
+    final String PATTERN_5 = "eight";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_catmint);
+
+
+        webView = (WebView)findViewById(R.id.webView);
+        line = (Button)findViewById(R.id.line);
+        rectangle = (Button)findViewById(R.id.rectangle);
+        zigzag = (Button)findViewById(R.id.zigzag);
+        eight = (Button)findViewById(R.id.eight);
+        maze = (Button)findViewById(R.id.maze);
+
+        int default_zoom_level = 100;
+        webView.setInitialScale(default_zoom_level);
+
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                int width = webView.getWidth();
+                int height = webView.getHeight();
+                webView.loadUrl("http://" + IP + ":8080/stream" + "?width=" + width + "&height=" + height);
+            }
+        });
+        line.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Straight Line", Toast.LENGTH_SHORT).show();
+                set_modeTask = new ServerTask(UserActivity.IP,UserActivity.PORT, PATTERN_1);
+                set_modeTask.execute();
+            }
+        });
+        rectangle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Rectangle", Toast.LENGTH_SHORT).show();
+                set_modeTask = new ServerTask(UserActivity.IP,UserActivity.PORT, PATTERN_3);
+                set_modeTask.execute();
+            }
+        });
+        zigzag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Zigzag", Toast.LENGTH_SHORT).show();
+                set_modeTask = new ServerTask(UserActivity.IP,UserActivity.PORT, PATTERN_2);
+                set_modeTask.execute();
+            }
+        });
+        eight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Eight", Toast.LENGTH_SHORT).show();
+                set_modeTask = new ServerTask(UserActivity.IP, UserActivity.PORT, PATTERN_5);
+                set_modeTask.execute();
+            }
+        });
+        maze.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Maze", Toast.LENGTH_SHORT).show();
+                set_modeTask = new ServerTask(UserActivity.IP, UserActivity.PORT, PATTERN_4);
+                set_modeTask.execute();
+            }
+        });
+    }
+}
