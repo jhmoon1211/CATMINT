@@ -1,0 +1,321 @@
+{\rtf1\ansi\ansicpg949\deff0\nouicompat\deflang1033\deflangfe1042{\fonttbl{\f0\fnil\fcharset129 \'b8\'bc\'c0\'ba \'b0\'ed\'b5\'f1;}}
+{\*\generator Riched20 10.0.15063}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs20\lang18 import socket\par
+import MySQLdb\par
+import time\par
+import random\par
+import RPi.GPIO as GPIO\par
+from subprocess import call\par
+\par
+#-*- coding: utf-8 -*-\par
+\par
+# motor 5 : left & right\par
+max_pos1 = 200\par
+min_pos1 = 90\par
+\par
+# motor 6 : up & down\par
+max_pos2 = 130\par
+min_pos2 = 50\par
+\par
+# motor clear setting\par
+pan_pos1 = 140\par
+pan_pos2 = 100\par
+\par
+sound_power = 1\par
+laser_power = False     # laser off\par
+\par
+# list for checking input string\par
+direction = ['r', 'l', 'u', 'd', 'a', 'b', 'c', 'e', 'clear']\par
+pattern = ['line', 'rectangle', 'zigzag', 'maze', 'eight']\par
+live_str = ""\par
+speed = 10\par
+laser_state = 'no_blink'\par
+\par
+HOST = ""\par
+PORT = 8888\par
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\par
+print('Socket created')\par
+s.bind((HOST, PORT))\par
+print('Socket bind complete')\par
+s.listen(1)\par
+print('Socket now listening')\par
+\par
+# func for moving laser pointer\par
+def match_direction(input_string, angle):\par
+    global pan_pos1\par
+    global pan_pos2\par
+    call_str = ""\par
+\par
+    if input_string =="r":              # case 1: right button click\par
+        pan_pos1 += angle               # move the Right and Left motor\par
+        if pan_pos1 >= max_pos1:        # check the maximum\par
+            pan_pos1 = max_pos1         # if input request over the max\par
+                                        # than set var as max\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster"\par
+\par
+    # left button click\par
+    elif input_string == "l":\par
+        pan_pos1 -= angle\par
+        if pan_pos1 <= min_pos1:\par
+            pan_pos1 = min_pos1\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster"\par
+\par
+    # up button click\par
+    elif input_string == "u":\par
+        pan_pos2 += angle\par
+        if pan_pos2 >= max_pos2:\par
+            pan_pos2 = max_pos2\par
+\par
+        call_str = "echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    # down button click\par
+    elif input_string == "d":\par
+        pan_pos2 -= angle\par
+        if pan_pos2 <= min_pos2:\par
+            pan_pos2 = min_pos2\par
+\par
+        call_str = "echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    # diagnol 1: right and up\par
+    elif input_string == "a":\par
+        pan_pos1 += angle\par
+        if pan_pos1 >= max_pos1:\par
+            pan_pos1 = max_pos1\par
+\par
+        pan_pos2 += angle\par
+        if pan_pos2 >= max_pos2:\par
+            pan_pos2 = max_pos2\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    # diagnol 2: right and down\par
+    elif input_string == "b":\par
+        pan_pos1 += angle\par
+        if pan_pos1 >= max_pos1:\par
+            pan_pos1 = max_pos1\par
+\par
+        pan_pos2 -= angle\par
+        if pan_pos2 <= min_pos2:\par
+            pan_pos2 = min_pos2\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    # diagnol 3: left and up\par
+    elif input_string == "c":\par
+        pan_pos1 -= angle\par
+        if pan_pos1 <= min_pos1:\par
+            pan_pos1 = min_pos1\par
+\par
+        pan_pos2 += angle\par
+        if pan_pos2 >= max_pos2:\par
+            pan_pos2 = max_pos2\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    # diagnol 4: left and down\par
+    elif input_string == "e":\par
+        pan_pos1 -= angle\par
+        if pan_pos1 <= min_pos1:\par
+            pan_pos1 = min_pos1\par
+\par
+        pan_pos2 -= angle\par
+        if pan_pos2 <= min_pos2:\par
+            pan_pos2 = min_pos2\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    # init motor setting\par
+    elif input_string == "clear":\par
+        pan_pos1 = 140\par
+        pan_pos2 = 100\par
+\par
+        call_str = "echo 5="+str(pan_pos1)+"> /dev/servoblaster | echo 6="+str(pan_pos2)+"> /dev/servoblaster"\par
+\par
+    else :\par
+        input_string = input_string+"dont have"\par
+\par
+    return call_str\par
+\par
+\par
+# set pattern which clicked from phone\par
+def set_pattern(input_string):\par
+\par
+    # case 1: Straight line pattern\par
+    if input_string == "line":\par
+        pattern = "pattern1"\par
+\par
+        get_pattern(1, pattern, 20)\par
+        print('auto: Straight line')\par
+\par
+    # case 2: Zigzag pattern\par
+    elif input_string == "zigzag":\par
+        pattern = "pattern2"\par
+\par
+        get_pattern(1, pattern, 10)\par
+        print('auto: zigzag')\par
+\par
+    # case 3: Rectangle pattern\par
+    elif input_string == "rectangle":\par
+        pattern = "pattern3"\par
+\par
+        get_pattern(1, pattern, 20)\par
+        print('auto: rectangle')\par
+\par
+    # case 4: maze pattern\par
+    elif input_string == "maze":\par
+        pattern = "pattern4"\par
+\par
+        get_pattern(1, pattern, 20)\par
+        print('auto: maze')\par
+\par
+    # case 5: eight pattern\par
+    elif input_string == "eight":\par
+        pattern = "pattern5"\par
+\par
+        get_pattern(1, pattern, 20)\par
+        print('auto: eight')\par
+\par
+    else :\par
+        print "auto: %s not exist." % (input_string)\par
+\par
+\par
+######### AUTO MODE ############\par
+def get_pattern(index, pattern, angle):\par
+    global laser_state\par
+    multi_strs = ["", ""]\par
+\par
+    db = MySQLdb.connect(host="127.0.0.1", port=3306, user="root", passwd="catmint", db="catmint")\par
+    db.set_character_set('utf8mb4')\par
+\par
+    cursor = db.cursor()\par
+\par
+    #sql = "SELECT pattern"+str(random.randint(1,4))+" from basicpattern"\par
+\par
+    sql = "SELECT " + pattern + " from basicpattern where num = " + str(index)\par
+\par
+    print(sql)\par
+\par
+    try:\par
+        cursor.execute(sql)\par
+        db.commit()\par
+        rows = cursor.fetchone()\par
+        datas = rows[0].split(" ")\par
+\par
+        for i in range(0, len(datas)):\par
+            print(datas[i])     #for test\par
+            # if laser power on, set laser power off.(for blink)\par
+            if laser_state == 'blink':\par
+                set_laser_power()\par
+\par
+            if datas[i].find(",") != -1:\par
+                print("datas have error.(db)")\par
+\par
+            else:\par
+                result = match_direction(datas[i], angle)\par
+                call(result, shell= True)\par
+                if laser_state == 'blink':\par
+                    time.sleep(0.1)\par
+                else:\par
+                    time.sleep(0.2)\par
+\par
+                # if laser power off, set laser power on.(for blink)\par
+                if laser_state == 'blink':\par
+                    set_laser_power()\par
+                    time.sleep(0.1)\par
+\par
+        db.close()\par
+        del(multi_strs)\par
+\par
+    except Exception as e:\par
+        print(str(e))\par
+        db.rollback()\par
+\par
+        db.close()\par
+\par
+def set_laser_power():\par
+    global laser_power\par
+\par
+    GPIO.setmode(GPIO.BCM)\par
+\par
+    print('Setup LED pins as outputs')\par
+\par
+    GPIO.setup(16, GPIO.OUT)\par
+    GPIO.output(16, False)\par
+    GPIO.setup(20, GPIO.OUT)\par
+    GPIO.output(20, False)\par
+    if laser_power == False:\par
+        laser_power = True\par
+        GPIO.output(16, True)\par
+        GPIO.output(20, True)\par
+\par
+    elif laser_power == True:\par
+        laser_power = False\par
+        GPIO.output(16, False)\par
+        GPIO.output(20, False)\par
+        GPIO.cleanup()\par
+\par
+    else:\par
+        print("set_laser_power: something has worng.")\par
+\par
+\par
+def play_sound():\par
+    global sound_power\par
+\par
+    s_num = random.randint(1, 6)\par
+\par
+    if s_num == 1:\par
+        filename = 'attention'\par
+    elif s_num == 2:\par
+        filename = 'cat'\par
+    elif s_num == 3:\par
+        filename = 'Hello'\par
+    elif s_num == 4:\par
+        filename = 'love'\par
+    elif s_num == 5:\par
+        filename = 'nice'\par
+    else:\par
+        filename = 'Play'\par
+\par
+    call("sudo modprobe snd-bcm2835", shell=True)\par
+    call("aplay /usr/share/sounds/alsa/" + filename + ".wav", shell=True)\par
+\par
+\par
+while True :\par
+    conn, addr = s.accept()\par
+    print("Connected by ", addr)\par
+\par
+    data = conn.recv(1024)\par
+    data = data.decode("utf8").strip()\par
+\par
+    if not data : break\par
+    print("Received: "+data)\par
+\par
+    if data in direction:\par
+        live_str = match_direction(data, speed)\par
+    elif data in pattern:\par
+        set_pattern(data)\par
+    elif data == 'sound':\par
+        print('sound')\par
+        play_sound()\par
+    elif data == 'laser_power':\par
+        set_laser_power()\par
+    elif data == 'blink':\par
+        laser_state = data\par
+    elif data == 'no_blink':\par
+        laser_state = data\par
+    else:\par
+        speed = int(data)\par
+\par
+    if live_str != "":\par
+        call(live_str, shell= True)\par
+        time.sleep(0.3)\par
+\par
+    conn.sendall(live_str.encode("utf-8"))\par
+\par
+    conn.close()\par
+\par
+s.close()\par
+}
+ 
