@@ -1,0 +1,70 @@
+package kr.ac.kpu.catmint;
+
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.LinearLayout;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //변수 선언
+        LinearLayout aboutBtn, userBtn, catmintBtn, settingBtn, howBtn;
+        final Intent about_intent, user_intent, catmint_intent, setting_intent, how_intent;
+
+        //변수 생성
+        aboutBtn = (LinearLayout) findViewById(R.id.aboutBtn);
+        userBtn = (LinearLayout) findViewById(R.id.userBtn);
+        catmintBtn = (LinearLayout) findViewById(R.id.catmintBtn);
+        settingBtn = (LinearLayout) findViewById(R.id.settingBtn);
+        howBtn = (LinearLayout) findViewById(R.id.howBtn);
+
+        about_intent = new Intent(this, AboutActivity.class);
+        user_intent = new Intent(this, UserActivity.class);
+        catmint_intent = new Intent(this, CatmintActivity.class);
+        setting_intent = new Intent(this, SettingActivity.class);
+        how_intent = new Intent(this, HowActivity.class);
+
+
+
+        aboutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(about_intent);
+            }
+        });
+
+        userBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(user_intent);
+            }
+        });
+
+        catmintBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(catmint_intent);
+            }
+        });
+
+        settingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(setting_intent);
+            }
+        });
+
+        howBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(how_intent);
+            }
+        });
+    }
+}
