@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activity_main"
+    android:id="@+id/activity_about"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -17,9 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="11dp"
-        android:textColor="#000000"
+        android:textColor="#288C28"
         android:textStyle="bold"
-        android:text="CATMINT"/>
+        android:text="ABOUT CATMINT"/>
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,114 +27,109 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/catmint_line"/>
 
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:id="@+id/aboutBtn">
+        android:layout_marginTop="100dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:textColor="#288C28"
             android:textStyle="bold"
-            android:text="ABOUT CATMINT"/>
-    </LinearLayout>
+            android:text="CATMINT"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:text=" 는 흔히 캣닢이라고 알려져 있습니다."/>
+        </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:text=" 이는 고양이 마약이라고 불리우는 식물로"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:id="@+id/userBtn">
+        android:layout_marginTop="20dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="6dp"
+            android:textSize="18dp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:text="저희 제품도 고양이"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textColor="#288C28"
+            android:textStyle="bold"
+            android:text=" 마약 장난감"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textSize="20dp"
             android:textColor="#000000"
             android:textStyle="bold"
-            android:text="PLAY" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textColor="#FF0000"
-            android:textStyle="bold"
-            android:text="by.USER" />
+            android:text="이 되기를"/>
     </LinearLayout>
 
-
-    <LinearLayout
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="18dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:id="@+id/catmintBtn">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="6dp"
-            android:textSize="20dp"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:text="PLAY"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="20dp"
-            android:textColor="#FF0000"
-            android:textStyle="bold"
-            android:text="by.CATMINT"/>
-    </LinearLayout>
+        android:textSize="20dp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:text="바라는 마음으로 제품명을 짓게 되었습니다."/>
 
-
-    <LinearLayout
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:id="@+id/settingBtn">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textColor="#828282"
-            android:textStyle="bold"
-            android:text="SETTING"/>
-    </LinearLayout>
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:text="제품 이름에 맞게 고양이 머리 위에는 "/>
 
-
-    <LinearLayout
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:id="@+id/howBtn">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textColor="#0064CD"
-            android:textStyle="bold"
-            android:text="HOW TO CATMINT"/>
-    </LinearLayout>
-
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:text="캣닢을 상징하는 잎 하나가 올려져 있습니다."/>
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/about_logo"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="25dp"
         android:background="@drawable/catmint_line"/>
 
     <TextView
