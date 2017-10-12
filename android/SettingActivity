@@ -1,0 +1,108 @@
+package kr.ac.kpu.catmint;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.SeekBar;
+import android.widget.Toast;
+
+import static kr.ac.kpu.catmint.R.id.seekBar;
+
+public class SettingActivity extends AppCompatActivity {
+
+    static int speed = 10;
+    boolean laser_state = false;
+
+    ServerTask speedTask, blinkTask;
+    SharedPreferences sf,sf2;
+    String sname = "myFile";
+    String save_state="myFile2";
+    RadioButton btn1, btn2;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_setting);
+
+        sf = getSharedPreferences(sname,0);
+        int m_speed = sf.getInt("speed",0);
+
+        sf2 = getSharedPreferences(save_state,0);
+        boolean l_state = sf2.getBoolean("laser_state", true);
+
+
+        Button usersetting = (Button)findViewById(R.id.userSetting);
+        SeekBar bar = (SeekBar)findViewById(seekBar);
+
+        btn1 = (RadioButton)findViewById(R.id.radioButton1);
+        btn2 = (RadioButton)findViewById(R.id.radioButton2);
+
+        bar.setProgress(m_speed+1);
+
+        if (l_state == false) {
+            btn2.setChecked(true);
+        }else {
+            btn1.setChecked(true);
+        }
+
+        usersetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent in = new Intent(getApplicationContext(), userSettingActivity.class);
+                startActivity(in);
+            }
+        });
+
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                speed=progress;
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(getApplicationContext(),"속도는 "+speed, Toast.LENGTH_SHORT).show();
+                speedTask = new ServerTask(UserActivity.IP, UserActivity.PORT, String.valueOf(speed));
+                speedTask.execute();
+            }
+        });
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                laser_state = true;
+                blinkTask = new ServerTask(UserActivity.IP, UserActivity.PORT, "blink");
+                blinkTask.execute();
+            }
+        });
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                laser_state = false;
+                blinkTask = new ServerTask(UserActivity.IP, UserActivity.PORT, "no_blink");
+                blinkTask.execute();
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor1 = sf.edit();
+        editor1.putInt("speed",speed);
+        editor1.commit();
+
+        SharedPreferences.Editor editor2 = sf2.edit();
+        editor2.putBoolean("laser_state", laser_state);
+        editor2.commit();
+    }
+}
